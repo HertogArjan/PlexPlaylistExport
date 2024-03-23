@@ -29,7 +29,7 @@ This was your second warning ;)
 
 ### Low-Level
 
-1. Python 3
+1. Python 3.9
 2. The plexapi library (use `pip install plexapi` to install)
 3. The unidecode library (use `pip install unidecode` to install)
 

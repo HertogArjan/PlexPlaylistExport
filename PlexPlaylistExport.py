@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """This script exports Plex Playlists into the M3U format.
 
 The script is designed in such a way that it only creates the M3U file
@@ -18,6 +20,8 @@ import argparse
 import requests
 import plexapi
 import codecs
+import os
+import re
 from plexapi.server import PlexServer
 from unidecode import unidecode
 
@@ -33,6 +37,25 @@ class ExportOptions():
         self.replaceWithDir = args.replace_with_dir
         self.user = args.switch_user
         pass
+
+def convert_to_current_os_path(file_path):
+    # 判断当前操作系统
+    current_os = os.name
+    if current_os == 'posix':  # Unix/Linux/MacOS
+        # 将Windows路径分隔符替换为Unix/Linux/MacOS路径分隔符
+        file_path = file_path.replace('\\', '/')
+    elif current_os == 'nt':  # Windows
+        # 将Unix/Linux/MacOS路径分隔符替换为Windows路径分隔符
+        file_path = file_path.replace('/', '\\')
+    else:
+        raise OSError("Unsupported operating system")
+    
+    # 转换为当前操作系统的路径格式
+    return os.path.abspath(file_path)
+
+def sanitize_filename(filename):
+    # 去掉非法字符
+    return re.sub(r'[<>:"/\\|?*]', '', filename)
 
 def do_asciify(input):
     """ Converts a string to it's ASCII representation
@@ -114,7 +137,7 @@ def export_playlist(options: ExportOptions):
     playlist_title = do_asciify(playlist.title) if options.asciify else playlist.title
     extension = "m3u" if options.asciify else "m3u8"
     encoding = "ascii" if options.asciify else "utf-8"
-    m3u = open('%s.%s' % (playlist_title, extension), 'w', encoding=encoding)
+    m3u = open('%s.%s' % (sanitize_filename(playlist_title), extension), 'w', encoding=encoding)
     m3u.write('#EXTM3U\n')
     m3u.write('#PLAYLIST:%s\n' % playlist_title)
     m3u.write('\n')
@@ -124,6 +147,7 @@ def export_playlist(options: ExportOptions):
     print(' %s items found' % playlist.leafCount)
     
     print('Writing M3U...', end='')
+
     for item in items:    
         media = item.media[0]
         seconds = int(item.duration / 1000)
@@ -141,7 +165,7 @@ def export_playlist(options: ExportOptions):
             m3u.write('#EXTART:%s\n' % albumArtist)
         for part in parts:
             m3u.write('#EXTINF:%s,%s - %s\n' % (seconds, artist, title))
-            m3u.write('%s\n' % part.file.replace(options.plexMusicRoot, options.replaceWithDir))
+            m3u.write('%s\n' % convert_to_current_os_path(part.file.replace(options.plexMusicRoot, options.replaceWithDir)))
             m3u.write('\n')
             
     m3u.close()
