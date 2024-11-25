@@ -30,8 +30,7 @@ This was your second warning ;)
 ### Low-Level
 
 1. Python 3.9
-2. The plexapi library (use `pip install plexapi` to install)
-3. The unidecode library (use `pip install unidecode` to install)
+2. Various modules, use `pip install -r requirements.txt` to install.
 
 ## My workflow
 
@@ -106,6 +105,28 @@ The following optional arguments can be supplied when combined with the `--playl
   contain Unicode characters alltogether (such as my car's infotainment system). In this case you might want to try this option which removes
   all Unicode characters in `#EXTINF`, `#EXTALB` and `#EXTART` lines. *It does however not ASCII-fy your paths*. If you need to do this I
   suggest you use beets [asciify_paths](https://beets.readthedocs.io/en/stable/reference/config.html#asciify-paths) option.
+
+### Using a config file for some arguments
+
+It is possible to write some of the options to a configuration file. This means common options don't have to be repeated everytime on the command line.
+
+Create a file `config.ini` in the project root directory. The file should start with a section header `[general]`. Then just write any command line arguments without the `--` part to the file, followed by ` = ` and the corresponding value. If it's a boolean option like `--write-album` then the value should be either true or false.
+
+The following is an example `config.ini`:
+```ini
+[general]
+host = https://xxx.xxx.plex.direct:32400
+token = xxx
+plex-music-root = /mnt/music
+replace-with-dir = \\fileserver\music
+```
+
+Then just use the script like:
+```bash
+python3 PlexPlaylistExport.py --list
+```
+
+Options given on the command line override any options given in the config file.
 
 ## Addendum: Exporting your music with beets
 
