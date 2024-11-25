@@ -4,3 +4,9 @@
 *.sh
 *.bat
 config.ini
+
+# ignore Python virtual environments
+.venv/
+venv/
+.env/
+env/
