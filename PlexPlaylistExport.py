@@ -17,9 +17,11 @@ Requirements
 """
 
 import argparse
+import configparser
 import requests
 import plexapi
 import codecs
+import sys
 import os
 import re
 from plexapi.server import PlexServer
@@ -227,6 +229,17 @@ def main():
         type = str,
         help = "Optional: The Managed User Account you want to switch to upon connect."
     )
+
+    config_file = 'config.ini'
+    if os.path.exists(config_file):
+        config = configparser.ConfigParser()
+        config.read(config_file)
+
+        for key in config['general'].keys():
+            if config['general'][key] not in ('true', 'false'):
+                sys.argv.insert(1, config['general'][key])
+
+            sys.argv.insert(1, '--' + key)
     
     args = parser.parse_args()
     options = ExportOptions(args=args)
