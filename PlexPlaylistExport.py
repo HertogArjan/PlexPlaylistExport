@@ -236,7 +236,10 @@ def main():
         config.read(config_file)
 
         for key in config['general'].keys():
-            if config['general'][key] not in ('true', 'false'):
+            if config['general'][key] == 'false':
+                continue
+
+            if config['general'][key] != 'true':
                 sys.argv.insert(1, config['general'][key])
 
             sys.argv.insert(1, '--' + key)
